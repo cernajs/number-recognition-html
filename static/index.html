@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <canvas id="draw-area" width="560" height="560" style="border:1px solid #000000;"></canvas>
+
+    <p id="pred"></p>
+    <button onclick="resetCanvas()">Reset</button>
+</body>
+</html>
+
+<script>
+function getCanvasData() {
+    return canvas.toDataURL('image/png');
+}
+
+async function sendCanvasData() {
+    let canvasData = getCanvasData();
+
+    let response = await fetch('/recognize', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ image: canvasData })
+    });
+
+    let result = await response.json();
+
+    document.getElementById('pred').innerHTML = result.prediction;
+}
+
+
+let canvas = document.getElementById('draw-area');
+let ctx = canvas.getContext('2d');
+
+let painting = false;
+
+function startDraw(e) {
+    painting = true;
+    draw(e);
+}
+
+function endDraw() {
+    painting = false;
+    ctx.beginPath();
+    sendCanvasData();
+}
+
+function resetCanvas() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function draw(e) {
+    if (!painting) return;
+    ctx.lineWidth = 20;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = 'black';
+
+    ctx.lineTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+    // sendCanvasData();
+}
+
+canvas.addEventListener('mousedown', startDraw);
+canvas.addEventListener('mouseup', endDraw);
+canvas.addEventListener('mousemove', draw);
+</script>
