@@ -45,17 +45,13 @@ async def recognize(image_data: ImageData):
             else:
                 normalized_image_array[x][y] = 255
 
-        
         #temp_image_array = (normalized_image_array * 255).astype(np.uint8)
-
         #temp_img = PILImage.fromarray(temp_image_array.T)
         #temp_img.save("static/image.png")
-
 
         print(normalized_image_array.T)
 
 
-        # prediction = model.predict_proba(normalized_image_array.T.reshape(1, 784))
         prediction = model.predict(normalized_image_array.T.reshape(1, 784))
 
         print(prediction.tolist())
@@ -64,7 +60,7 @@ async def recognize(image_data: ImageData):
         #prediction /= prediction.sum()
 
         #return .2f precision
-        prediction = np.round(prediction, 10)
+        #prediction = np.round(prediction, 10)
 
         return {'prediction': prediction.tolist()}
 
